@@ -1,3 +1,5 @@
+# FIRST DRAFT
+
 import math
 import numpy as np
 
@@ -31,7 +33,7 @@ class Maze:
         if [x,y] in self.walls:
             return -1
         if [x,y] == self.end:
-            return 500
+            return 5000
         return 0
     def get_action(self,x,y,i):
         if i == 0:
@@ -52,7 +54,7 @@ class Maze:
     def get_average(self,x,y,grid):
         result = []
         if [x,y] == self.end:
-            return 500
+            return 5000
         if [x,y] in self.walls:
             return -1
         max_value = -100000
@@ -89,8 +91,7 @@ class Maze:
             for y in range(self.height):
                 for x in range(self.width):
                     value_map[x][y] = self.get_average(x,y,value_map)
-        
-        #
+
         return value_map
     
     def find_optimal_path(self, value_map):
@@ -104,7 +105,11 @@ class Maze:
                     path_row.append(' ')
             path_map.append(path_row)
         start_pos = self.start
+        out = 0
         while start_pos != self.end:
+            out += 1
+            if out > 1000:
+                return None
             path_map[start_pos[0]][start_pos[1]] = '*'
             max_value = -100000
             max_move = start_pos
