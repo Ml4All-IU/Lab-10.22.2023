@@ -1,16 +1,16 @@
 # GOOGLE COLAB VERSION
 import numpy as np
 
-grid = ["SOOOOOOOOO",
-        "***OOO*O*O",
-        "*O*****O*O",
-        "*O*OOO*O*O",
-        "*O*O*O*O*O",
-        "*O*O*O***O",
-        "*O*O*OOO*O",
-        "*OOO*****O",
-        "*OO**OO*OO",
-        "****O****E"]
+grid = ["SOOOOO*OOO",
+        "**********",
+        "OOOO*OOOO*",
+        "***O*O****",
+        "*OOO*O*OOO",
+        "***O******",
+        "OO*O*OOOO*",
+        "*O***O****",
+        "*O*O*O*OOO",
+        "***O*O***E"]
 
 def readGrid():
   start = []
@@ -30,12 +30,14 @@ def readGrid():
 
 start, end, walls, maze_width, maze_height = readGrid()
 
-END_REWARD = 50
+END_REWARD = 1
 WALLS_REWARD = -1
-OUT_OF_BOUNDS_REWARD = -2
-GAMMA = 0.9
+OUT_OF_BOUNDS_REWARD = -1
+GAMMA = 0.99
 MAX_VALUE_PERCENTAGE = 0.7
 VALUE_PERCENTAGE = 0.1
+
+INFINITY = 9999999999
 
 # helper functions
 def inBounds(x,y):
@@ -73,7 +75,7 @@ def getValue(x,y,grid):
     return getRewardAmount(x,y)
   neighbors = []
   # arbitrary min value
-  neighbors_max = -99999999
+  neighbors_max = -INFINITY
   max_index = 0
   
   for i in range(4):
@@ -95,6 +97,17 @@ def getValue(x,y,grid):
     result += neighbors[i] * VALUE_PERCENTAGE
   return result
 
+def onPath(x,y):
+  if [y,x] in walls:
+    return False
+  if [y,x] == end:
+    return False
+  if not inBounds(y,x):
+    return False
+  if [y,x] == start:
+    return False
+  return True
+
 def valueMap():
   value_map = []
   # init with base rewards
@@ -105,10 +118,20 @@ def valueMap():
     value_map.append(val_row)
   
   # value iteration
-  for i in range(30):
+  #for i in range(30):
+  previous_value = 0
+  next_value = 0
+  delta = INFINITY
+  # for i in range(10):
+  while delta >= (1 - GAMMA) / GAMMA:
+    previous_value = value_map[start[1]][start[0]]
+    temp_map = value_map
     for y in range(maze_height):
       for x in range(maze_width):
-        value_map[y][x] = getValue(x,y,value_map)
+        next_value = getValue(x,y,temp_map)
+        value_map[y][x] = next_value
+    next_value = value_map[start[1]][start[0]]
+    delta = abs(previous_value - next_value)
   
   return value_map
 
@@ -120,13 +143,13 @@ def getBestPath(value_map):
     path.append(pos)
     out += 1
     if(out >= 200):
-      print("BAD")
+      print("NO PATH FOUND AFTER 200 ATTEMPTS")
       return None
-    max_val = -9999999
+    max_val = -INFINITY
     max_move = pos
     for i in range(4):
       next_state = getAction(pos[0],pos[1],i)
-      if inBounds(next_state[0],next_state[1]):
+      if inBounds(next_state[0],next_state[1]) and next_state not in path:
         val = value_map[next_state[1]][next_state[0]]
         if val > max_val:
           max_val = val
@@ -138,6 +161,8 @@ def getBestPath(value_map):
 def printPath(value_map):
   path = getBestPath(value_map)
   output = []
+  if path == None:
+    return output
   for row in range(len(value_map)):
     dis_row = []
     for col in range(len(value_map[row])):
@@ -156,5 +181,6 @@ def printPath(value_map):
   return output
 
 print(np.matrix(printPath(valueMap())))
+# print(np.matrix(valueMap()))
 # temp check to make sure it finds best path for sure
-print(len(getBestPath(valueMap())))
+# print(len(getBestPath(valueMap())))
