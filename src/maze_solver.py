@@ -123,12 +123,6 @@ class Maze:
             start_pos = max_move
         path_map[start_pos[0]][start_pos[1]] = 'E'
         return path_map
-                
-                    
-
-# todo: for-loop for iteration, instead of copy pasting 7 times :/
-#       actually applying the value map to a bot that uses it to solve the maze
-#       stress testing
 
 grid = Maze()
 # print(np.matrix(grid.value_mapping()))
