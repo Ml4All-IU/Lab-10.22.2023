@@ -37,9 +37,9 @@ INFINITY = 9999999999
 END_REWARD = 1
 WALLS_REWARD = -1
 OUT_OF_BOUNDS_REWARD = -1
-GAMMA = 0.999
+GAMMA = 0.9999
 MAX_VALUE_PERCENTAGE = 0.7
-VALUE_PERCENTAGE = 0.1
+VALUE_PERCENTAGE = (1.0 - MAX_VALUE_PERCENTAGE) / 3.0
 
 # ----------------------------------------------------------------
 
@@ -148,6 +148,11 @@ def valueMap():
     # update delta
     delta = abs(previous_value - next_value)
 
+  for y in range(maze_height):
+    for x in range(maze_width):
+      value = value_map[y][x]
+      value_map[y][x] = round(value, 3)
+
   return value_map
 
 def getBestPath(value_map):
@@ -169,7 +174,6 @@ def getBestPath(value_map):
       return path
     # check all neighboring actions
     for i in range(4):
-      # index = int(np.random.rand() * 4) % 4
       next_state = getAction(pos[0],pos[1],i)
       # helps get more accurate. not always needed
       if next_state in path:
@@ -210,8 +214,13 @@ def printPath(value_map):
     output.append(dis_row)
   return output
 
-print(np.matrix(printPath(valueMap())))
-print("Length of path:")
-print(len(getBestPath(valueMap())))
+print(" ")
+
+print(np.matrix(valueMap()))
+
+print(" ")
+# print(np.matrix(printPath(valueMap())))
+# print("Length of path:")
+# print(len(getBestPath(valueMap())))
 
 # SEE FINAL OUTPUT HERE:
